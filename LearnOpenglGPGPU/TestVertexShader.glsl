@@ -4,6 +4,7 @@ layout (location = 0) in vec3 aPos;
 
 out VS_OUT
 {
+	vec2 texCoords;
 	vec4 vertexColor;
 } vs_out;
 
@@ -18,5 +19,5 @@ uniform App app;
 void main()
 {
     gl_Position = app.projection * app.view * app.model * vec4(aPos, 1.0);
-	vs_out.vertexColor = vec4(0,1,0,1);
+	vs_out.vertexColor = vec4(aPos, 1);
 }
