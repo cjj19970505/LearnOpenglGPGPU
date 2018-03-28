@@ -8,7 +8,7 @@ out VS_OUT
 
 struct App
 {
-	vec2 somthing;
+	ivec2 imageSize;
 };
 
 uniform App app;

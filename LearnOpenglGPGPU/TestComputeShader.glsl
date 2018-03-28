@@ -11,6 +11,6 @@ layout(rgba32f, binding = 2) uniform image1D outputArray;
 void main(void){
     vec4 color = imageLoad(inputImage, ivec2(gl_GlobalInvocationID.xy));
     //imageStore(outputImage, ivec2(gl_GlobalInvocationID.xy), vec4(0.1,0.1,0.5,0.1));
-	imageStore(outputImage, ivec2(gl_GlobalInvocationID.xy), color+vec4(0.1,0.1,0.5,0.1));
+	imageStore(outputImage, ivec2(gl_GlobalInvocationID.xy), color);
     //imageStore(outputArray, int(gl_GlobalInvocationID.x), vec4(gl_GlobalInvocationID.x/1024.0f, 0, 0, 1));
 }
