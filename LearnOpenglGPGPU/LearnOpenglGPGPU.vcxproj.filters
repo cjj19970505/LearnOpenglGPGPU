@@ -30,6 +30,15 @@
     <ClInclude Include="ComputeShader.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ComputeTask.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HistogramComputeTask.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HistogramEqualizationTask.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -48,6 +57,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ComputeShader.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputeTask.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

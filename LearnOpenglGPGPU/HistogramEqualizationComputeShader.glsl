@@ -2,8 +2,7 @@
 
 layout(local_size_y = 1) in;
 layout(rgba32f, binding = 0) uniform image2D inputImage;
-layout(r32ui, binding = 1) uniform uimage1D outHistogram;
-layout(r32ui, binding = 2) uniform uimage1D uiTest;
+layout(r32ui, binding = 1) uniform uimage1D inHistogram;
 struct App
 {
 	uvec2 imageSize;
