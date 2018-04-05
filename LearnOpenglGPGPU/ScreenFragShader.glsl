@@ -7,15 +7,20 @@ in VS_OUT
 
 layout(binding = 0) uniform sampler2D tex;
 layout(binding = 1) uniform sampler2D originTex;
-layout(binding = 2) uniform usampler1D array;
-layout(binding = 3) uniform usampler1D uiTest;
 
+float grayscale(vec4 color)
+{
+	return color.r*0.299+color.g*0.587+color.b*0.114;
+} 
 void main()
 {
-	vec4 color = texture(tex, fs_in.texCoords).rgba;
-	vec4 originColor = texture(originTex, fs_in.texCoords).rgba;
-	uvec4 arrayColor = texture(array, fs_in.texCoords.x).rgba;
-	uvec4 uiTestColor = texture(uiTest, fs_in.texCoords.x);
-	FragColor = color*(arrayColor.r)/10;
-	FragColor = vec4(arrayColor)/(2000);
+	vec4 originColor = texture(originTex, fs_in.texCoords);
+	float originGrayscale = grayscale(originColor);
+	vec4 color = texture(tex, fs_in.texCoords).rrrr;
+	float fact = color.r/originColor.r;
+	FragColor = originColor*fact;
+	//FragColor = vec4(originGrayscale, 0, 0, 0).rrrr;
+	//FragColor = color;
+	//FragColor = color;
 }
+

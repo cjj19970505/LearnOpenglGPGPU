@@ -1,6 +1,6 @@
 #version 430 core
 
-layout(local_size_y = 1) in;
+layout(local_size_x = 256) in;
 layout(r32ui, binding = 0) uniform uimage1D inHistogram;
 
 void main(void){

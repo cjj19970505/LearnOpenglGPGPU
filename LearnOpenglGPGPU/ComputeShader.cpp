@@ -26,7 +26,7 @@ void ComputeShader::load()
 	if (!success)
 	{
 		glGetShaderInfoLog(cShader1, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		std::cout << "ERROR::SHADER::COMPUTE_SHADER("<<path<<")::COMPILATION_FAILED\n" << infoLog << std::endl;
 		error = true;
 		return;
 	}

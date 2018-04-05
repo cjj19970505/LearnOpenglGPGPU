@@ -157,6 +157,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="ComputeTask.h" />
+    <ClInclude Include="GrayprocessingTask.h" />
     <ClInclude Include="HistogramComputeTask.h" />
     <ClInclude Include="HistogramEqualizationTask.h" />
     <ClInclude Include="Shader.h" />

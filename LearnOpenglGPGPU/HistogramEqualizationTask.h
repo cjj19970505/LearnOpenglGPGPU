@@ -9,8 +9,15 @@ class HistogramEqualizationTask :
 	public ComputeTask
 {
 private:
+	GLuint summedHistogramArrayId = 0;
+	//GL_TEXTURE_2D, GL_RED, GL_R32F 灰度图！！
 	GLuint sourceTextureId = 0;
+	GLuint outputTextureId = 0;
 	HistogramComputeTask *histogramComputeTask;
+	//这货是用来将直方图做一个求和的
+	ComputeShader *histogramSummationComputeShader;
+	ComputeShader *histogramEqualizationShader;
+
 	int width = 0;
 	int height = 0;
 public:
@@ -18,7 +25,7 @@ public:
 	~HistogramEqualizationTask();
 	bool isConfigCompleted()
 	{
-		if (glIsTexture(sourceTextureId))
+		if (glIsTexture(sourceTextureId) && glIsTexture(outputTextureId))
 		{
 			return histogramComputeTask->isConfigCompleted();
 		}
@@ -27,13 +34,56 @@ public:
 			return false;
 		}
 	}
-	void setTexture(GLuint textureId, int width, int height)
+	void setTexture(GLuint textureId, int width, int height, bool deleteOutputTexture = true)
 	{
 		this->sourceTextureId = textureId;
 		this->width = width;
 		this->height = height;
 		histogramComputeTask->setSourceTexture(textureId, width, height);
+
+		if (deleteOutputTexture && glIsTexture(this->outputTextureId))
+		{
+			glDeleteTextures(1, &outputTextureId);
+			outputTextureId = 0;
+		}
+		GLuint outputImage;
+		glGenTextures(1, &outputImage);
+		glBindTexture(GL_TEXTURE_2D, outputImage);
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32F, width, height);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		this->outputTextureId = outputImage;
+	}
+	GLuint getOuputTextureId()
+	{
+		return outputTextureId;
+	}
+	bool execute()
+	{
+		if (!isConfigCompleted())
+		{
+			return false;
+		}
+		bool histogramSucceed = histogramComputeTask->execute();
+		if (!histogramSucceed)
+		{
+			return false;
+		}
+
 		
+		histogramSummationComputeShader->use();
+		glBindImageTexture(0, histogramComputeTask->getHistogramArrayId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32UI);
+		glBindImageTexture(1, summedHistogramArrayId, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
+		glDispatchCompute(256, 1, 1);
+		histogramEqualizationShader->use();
+
+		glBindImageTexture(0, summedHistogramArrayId, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32UI);
+		glBindImageTexture(1, sourceTextureId, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+		glBindImageTexture(2, outputTextureId, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+		histogramEqualizationShader->setUvec2("app.imageSize", glm::uvec2(width, height));
+		glDispatchCompute(width/32+1, height/32+1, 1);
+		return true;
 	}
 };
 
@@ -42,6 +92,15 @@ public:
 HistogramEqualizationTask::HistogramEqualizationTask()
 {
 	histogramComputeTask = new HistogramComputeTask();
+	histogramEqualizationShader = new ComputeShader("HistogramEqualizationComputeShader.glsl");
+	histogramSummationComputeShader = new ComputeShader("HistogramSummationComputeShader.glsl");
+
+	glGenTextures(1, &summedHistogramArrayId);
+	glBindTexture(GL_TEXTURE_1D, summedHistogramArrayId);
+	glTexStorage1D(GL_TEXTURE_1D, 1, GL_R32UI, 256);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glBindTexture(GL_TEXTURE_1D, 0);
 }
 
 
