@@ -34,28 +34,31 @@ public:
 			return false;
 		}
 	}
-	void setTexture(GLuint textureId, int width, int height, bool deleteOutputTexture = true)
+	void setTexture(GLuint textureId, int width, int height)
 	{
 		this->sourceTextureId = textureId;
+		histogramComputeTask->setSourceTexture(textureId, width, height);
+		if (!(width == this->width && height == this->height))
+		{
+			if (glIsTexture(this->outputTextureId))
+			{
+				glDeleteTextures(1, &outputTextureId);
+				outputTextureId = 0;
+			}
+			GLuint outputImage;
+			glGenTextures(1, &outputImage);
+			glBindTexture(GL_TEXTURE_2D, outputImage);
+			glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32F, width, height);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			this->outputTextureId = outputImage;
+		}
 		this->width = width;
 		this->height = height;
-		histogramComputeTask->setSourceTexture(textureId, width, height);
-
-		if (deleteOutputTexture && glIsTexture(this->outputTextureId))
-		{
-			glDeleteTextures(1, &outputTextureId);
-			outputTextureId = 0;
-		}
-		GLuint outputImage;
-		glGenTextures(1, &outputImage);
-		glBindTexture(GL_TEXTURE_2D, outputImage);
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32F, width, height);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		this->outputTextureId = outputImage;
+		
 	}
-	GLuint getOuputTextureId()
+	GLuint getOutputTextureId()
 	{
 		return outputTextureId;
 	}
@@ -70,8 +73,6 @@ public:
 		{
 			return false;
 		}
-
-		
 		histogramSummationComputeShader->use();
 		glBindImageTexture(0, histogramComputeTask->getHistogramArrayId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32UI);
 		glBindImageTexture(1, summedHistogramArrayId, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
